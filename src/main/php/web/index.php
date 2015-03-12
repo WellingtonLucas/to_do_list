@@ -1,24 +1,36 @@
-
 <!DOCTYPE html>
 <?php 
-	@session_start();
+	session_start();
 	$lista_titulos = array();
 	$lista_lembretes = array();
 	$tag = FALSE;
+	$id = count($lista_lembretes);
 	if(isset($_SESSION['TITULOS']) && isset($_SESSION['LEMBRETE'])){
-		if(isset($_POST['titulo']) && isset($_POST['conteudo'])){		
-			$lista_lembretes = $_SESSION['LEMBRETE'];
-			$lista_titulos = $_SESSION['TITULOS'];
+		$lista_lembretes = $_SESSION['LEMBRETE'];
+		$lista_titulos = $_SESSION['TITULOS'];
+		$tag = TRUE;
+	
+	}else{		
+		$tag = FALSE;
+	}
+	
+	if(isset($_POST['titulo']) && isset($_POST['conteudo'])){
+		if($id == 0){			
 			array_push($lista_lembretes, $_POST['conteudo']);
 			array_push($lista_titulos, $_POST['titulo']);
 			$_SESSION['LEMBRETE'] = $lista_lembretes;
 			$_SESSION['TITULOS'] = $lista_titulos;
-		}else{
-			$lista_lembretes = $_SESSION['LEMBRETE'];
-			$lista_titulos = $_SESSION['TITULOS'];
+			$tag = TRUE;
+			
+		}else if($lista_lembretes[count($lista_lembretes)-1] != $_POST['conteudo']){		
+			array_push($lista_lembretes, $_POST['conteudo']);
+			array_push($lista_titulos, $_POST['titulo']);
+			$_SESSION['LEMBRETE'] = $lista_lembretes;
+			$_SESSION['TITULOS'] = $lista_titulos;
+			$tag = TRUE;		
 		}
-		$tag = TRUE;
 	}
+		
 ?>
 <html>
 	<head>
@@ -81,17 +93,17 @@
 			</div>
 		    <?php if($tag){?>
 		    
-			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
 			 <?php for ($i = count($lista_titulos)-1; $i>=0; $i--){?>
 			  <div class="panel panel-default">
-			    <div class="panel-heading" role="tab" id="headingOne">
+			    <div class="panel-heading" role="tab" id="heading<?php echo $i ?>">
 			      <h4 class="panel-title">
-			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapse<?php echo $i ?>" aria-expanded="true" aria-controls="collapse<?php echo $i ?>">
 			          <?php echo $lista_titulos[$i]?>
 			        </a>
 			      </h4>
 			    </div>
-			    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+			    <div id="collapse<?php echo $i ?>" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading<?php echo $i ?>">
 			      <div class="panel-body">
 			      	<?php echo $lista_lembretes[$i]?>  
 			      </div>

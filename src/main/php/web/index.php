@@ -1,36 +1,21 @@
 <!DOCTYPE html>
 <?php 
+	require_once __DIR__.'/../service/LembreteService.php';	
 	session_start();
-	$lista_titulos = array();
-	$lista_lembretes = array();
-	$tag = FALSE;
-	$id = count($lista_lembretes);
-	if(isset($_SESSION['TITULOS']) && isset($_SESSION['LEMBRETE'])){
-		$lista_lembretes = $_SESSION['LEMBRETE'];
-		$lista_titulos = $_SESSION['TITULOS'];
-		$tag = TRUE;
+	$service = new LembreteService();
 	
-	}else{		
-		$tag = FALSE;
+	if(isset($_POST['excluir'])){
+		$service->excluir($_POST['excluir']);
 	}
+	
+	$lembretes = $service->listar();	
 	
 	if(isset($_POST['titulo']) && isset($_POST['conteudo'])){
-		if($id == 0){			
-			array_push($lista_lembretes, $_POST['conteudo']);
-			array_push($lista_titulos, $_POST['titulo']);
-			$_SESSION['LEMBRETE'] = $lista_lembretes;
-			$_SESSION['TITULOS'] = $lista_titulos;
-			$tag = TRUE;
-			
-		}else if($lista_lembretes[count($lista_lembretes)-1] != $_POST['conteudo']){		
-			array_push($lista_lembretes, $_POST['conteudo']);
-			array_push($lista_titulos, $_POST['titulo']);
-			$_SESSION['LEMBRETE'] = $lista_lembretes;
-			$_SESSION['TITULOS'] = $lista_titulos;
-			$tag = TRUE;		
-		}
+		$titulo = $_POST['titulo'];
+		$conteudo = $_POST['conteudo'];
+		$service->salvar($titulo, $conteudo);						
 	}
-		
+	$lembretes = $service->listar();
 ?>
 <html>
 	<head>
@@ -95,21 +80,27 @@
 			    </div>
 			  </div>
 			</div>
-		    <?php if($tag){?>
+		    <?php if(!empty($lembretes)){?>
 		    
 			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-			 <?php for ($i = count($lista_titulos)-1; $i>=0; $i--){?>
+			 <?php for ($i = count($lembretes)-1; $i>=0; $i--){?>
 			  <div class="panel panel-default">
 			    <div class="panel-heading" role="tab" id="heading<?php echo $i ?>">
 			      <h4 class="panel-title">
-			        <a data-toggle="collapse" data-parent="#accordion" href="#collapse<?php echo $i ?>" aria-expanded="true" aria-controls="collapse<?php echo $i ?>">
-			          <?php echo $lista_titulos[$i]?>
+			        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse<?php echo $i ?>" aria-expanded="true" aria-controls="collapse<?php echo $i ?>">
+			          <?php echo $lembretes[$i]->titulo?>
 			        </a>
 			      </h4>
 			    </div>
-			    <div id="collapse<?php echo $i ?>" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading<?php echo $i ?>">
+			    <div id="collapse<?php echo $i ?>" class="panel-collapse collapse"  role="tabpanel" aria-labelledby="heading<?php echo $i ?>">
 			      <div class="panel-body">
-			      	<?php echo $lista_lembretes[$i]?>  
+			      	<?php echo $lembretes[$i]->conteudo?>  
+			      	<form action="index.php" method="post">
+			      		<div class="footer">
+			      			<input type="hidden" name="excluir" value ="<?php echo $lembretes[$i]->id?>"/>
+			      			<button type="submit" class="btn btn-danger">Excluir</button>
+			      		</div>
+			      	</form>
 			      </div>
 			    </div>
 			  </div>
@@ -118,7 +109,7 @@
 			<?php }?>
 			
 			<footer class="footer">
-	        	<p>&copy; UFC-Quixadá</p>
+	        	<p>&copy; Wellington; Fernanda; Paulo.</p>
 	      	</footer>
       	</div>
 	</body>
